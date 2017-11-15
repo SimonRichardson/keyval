@@ -1,0 +1,8 @@
+hash: 816893287f9853c5b50b53ebbb5d0c9fbc8dc3bd1b9b941f716b04c494936ffa
+updated: 2017-11-15T10:22:29.076536847Z
+imports:
+- name: github.com/pkg/errors
+  version: c605e284fe17294bda444b34710735b29d1a9d90
+- name: github.com/spaolacci/murmur3
+  version: 9f5d223c60793748f04a9d5b4b4eacddfc1f755d
+testImports: []

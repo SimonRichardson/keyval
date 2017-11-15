@@ -1,0 +1,4 @@
+package: github.com/SimonRichardson/keyval
+import:
+  - package: github.com/pkg/errors
+  - package: github.com/spaolacci/murmur3

@@ -1,11 +1,9 @@
-package tcp
+package net
 
 import (
 	"encoding/gob"
 	"errors"
 	"io"
-
-	"github.com/SimonRichardson/keyval/pkg/net"
 )
 
 // QueryParams defines all the dimensions of a query.
@@ -14,12 +12,9 @@ type QueryParams struct {
 }
 
 // DecodeFrom populates a QueryParams from a URL.
-func (qp *QueryParams) DecodeFrom(q net.Query, rb queryBehavior) error {
-	// Required depending on the query behavior
-	if rb == queryRequired {
-		if qp.Key = q.Key; qp.Key == "" {
-			return errors.New("error reading 'key' (required) query")
-		}
+func (qp *QueryParams) DecodeFrom(q Query) error {
+	if qp.Key = q.Key; qp.Key == "" {
+		return errors.New("error reading 'key' (required) query")
 	}
 	return nil
 }
@@ -34,8 +29,8 @@ type SelectQueryResult struct {
 // EncodeTo encodes the SelectQueryResult to the HTTP response writer.
 func (qr *SelectQueryResult) EncodeTo(w io.Writer) {
 	enc := gob.NewEncoder(w)
-	enc.Encode(net.Result{
-		Status:   net.OK,
+	enc.Encode(Result{
+		Status:   OK,
 		Value:    qr.Value,
 		Duration: qr.Duration,
 	})
@@ -50,13 +45,13 @@ type InsertQueryResult struct {
 
 // EncodeTo encodes the InsertQueryResult to the HTTP response writer.
 func (qr *InsertQueryResult) EncodeTo(w io.Writer) {
-	status := net.OK
+	status := OK
 	if qr.Created {
-		status = net.Created
+		status = Created
 	}
 
 	enc := gob.NewEncoder(w)
-	enc.Encode(net.Result{
+	enc.Encode(Result{
 		Status:   status,
 		Value:    []byte{},
 		Duration: qr.Duration,
@@ -72,16 +67,9 @@ type DeleteQueryResult struct {
 // EncodeTo encodes the DeleteQueryResult to the HTTP response writer.
 func (qr *DeleteQueryResult) EncodeTo(w io.Writer) {
 	enc := gob.NewEncoder(w)
-	enc.Encode(net.Result{
-		Status:   net.OK,
+	enc.Encode(Result{
+		Status:   OK,
 		Value:    []byte{},
 		Duration: qr.Duration,
 	})
 }
-
-type queryBehavior int
-
-const (
-	queryRequired queryBehavior = iota
-	queryOptional
-)

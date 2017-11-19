@@ -11,6 +11,7 @@ import (
 	httpStore "github.com/SimonRichardson/keyval/pkg/http"
 	"github.com/SimonRichardson/keyval/pkg/store"
 	tcpStore "github.com/SimonRichardson/keyval/pkg/tcp"
+	udpStore "github.com/SimonRichardson/keyval/pkg/udp"
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
 )
@@ -22,6 +23,7 @@ func runStore(args []string) error {
 		debug       = flags.Bool("debug", false, "debug logging")
 		apiHTTPAddr = flags.String("api.http", defaultAPIHTTPAddr, "listen address for HTTP API")
 		apiTCPAddr  = flags.String("api.tcp", defaultAPITCPAddr, "listen address for TCP API")
+		apiUDPAddr  = flags.String("api.udp", defaultAPIUDPAddr, "listen address for UDP API")
 	)
 
 	flags.Usage = usageFor(flags, "store [flags]")
@@ -65,6 +67,22 @@ func runStore(args []string) error {
 
 	level.Debug(logger).Log("TCP_API", fmt.Sprintf("%s://%s", apiTCPNetwork, apiTCPAddress))
 
+	// Setup udp api
+	apiUDPNetwork, apiUDPAddress, err := parseAddr(*apiUDPAddr, defaultAPIUDPPort)
+	if err != nil {
+		return err
+	}
+	udpAddr, err := net.ResolveUDPAddr(apiUDPNetwork, apiUDPAddress)
+	if err != nil {
+		return err
+	}
+	apiUDPListener, err := net.ListenUDP(apiUDPNetwork, udpAddr)
+	if err != nil {
+		return err
+	}
+
+	level.Debug(logger).Log("TCP_API", fmt.Sprintf("%s://%s", apiUDPNetwork, apiUDPAddress))
+
 	// Setup store api
 	keyval := store.New()
 
@@ -93,6 +111,17 @@ func runStore(args []string) error {
 				log.With(logger, "component", "store_tcp_api"),
 			)
 			return server.Serve(apiTCPListener)
+		}, func(error) {
+			apiTCPListener.Close()
+		})
+	}
+	{
+		g.Add(func() error {
+			server := udpStore.NewServer(
+				keyval,
+				log.With(logger, "component", "store_udp_api"),
+			)
+			return server.Serve(apiUDPListener)
 		}, func(error) {
 			apiTCPListener.Close()
 		})

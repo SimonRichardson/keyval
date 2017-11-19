@@ -66,8 +66,8 @@ func (s *Server) handleSelect(w io.Writer, q keyvalNet.Query) {
 	begin := time.Now()
 
 	// Validate user input.
-	var qp QueryParams
-	if err := qp.DecodeFrom(q, queryRequired); err != nil {
+	var qp keyvalNet.QueryParams
+	if err := qp.DecodeFrom(q); err != nil {
 		write(w, keyvalNet.BadRequest)
 		return
 	}
@@ -78,7 +78,7 @@ func (s *Server) handleSelect(w io.Writer, q keyvalNet.Query) {
 		return
 	}
 
-	qr := SelectQueryResult{Params: qp}
+	qr := keyvalNet.SelectQueryResult{Params: qp}
 	qr.Value = value
 
 	// Finish
@@ -91,13 +91,13 @@ func (s *Server) handleInsert(w io.Writer, q keyvalNet.Query) {
 	begin := time.Now()
 
 	// Validate user input.
-	var qp QueryParams
-	if err := qp.DecodeFrom(q, queryRequired); err != nil {
+	var qp keyvalNet.QueryParams
+	if err := qp.DecodeFrom(q); err != nil {
 		write(w, keyvalNet.BadRequest)
 		return
 	}
 
-	qr := InsertQueryResult{Params: qp}
+	qr := keyvalNet.InsertQueryResult{Params: qp}
 	qr.Created = s.store.Set(qp.Key, q.Value)
 
 	// Finish
@@ -110,8 +110,8 @@ func (s *Server) handleDelete(w io.Writer, q keyvalNet.Query) {
 	begin := time.Now()
 
 	// Validate user input.
-	var qp QueryParams
-	if err := qp.DecodeFrom(q, queryRequired); err != nil {
+	var qp keyvalNet.QueryParams
+	if err := qp.DecodeFrom(q); err != nil {
 		write(w, keyvalNet.BadRequest)
 		return
 	}
@@ -122,7 +122,7 @@ func (s *Server) handleDelete(w io.Writer, q keyvalNet.Query) {
 		return
 	}
 
-	qr := DeleteQueryResult{Params: qp}
+	qr := keyvalNet.DeleteQueryResult{Params: qp}
 
 	// Finish
 	qr.Duration = time.Since(begin).String()

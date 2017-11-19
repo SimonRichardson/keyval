@@ -17,12 +17,14 @@ var version = "dev"
 const (
 	defaultAPIHTTPPort = 8080
 	defaultAPITCPPort  = 8081
+	defaultAPIUDPPort  = 8082
 	defaultAddr        = "0.0.0.0:0"
 )
 
 var (
 	defaultAPIHTTPAddr = fmt.Sprintf("tcp://0.0.0.0:%d", defaultAPIHTTPPort)
 	defaultAPITCPAddr  = fmt.Sprintf("tcp://0.0.0.0:%d", defaultAPITCPPort)
+	defaultAPIUDPAddr  = fmt.Sprintf("udp://0.0.0.0:%d", defaultAPIUDPPort)
 )
 
 type command func([]string) error

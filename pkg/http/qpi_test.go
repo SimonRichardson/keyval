@@ -12,6 +12,7 @@ import (
 	"testing/quick"
 
 	"github.com/SimonRichardson/keyval/pkg/store/mocks"
+	"github.com/go-kit/kit/log"
 	"github.com/golang/mock/gomock"
 )
 
@@ -26,7 +27,7 @@ func TestAPISelect(t *testing.T) {
 
 			store := mocks.NewMockStore(ctrl)
 
-			api := NewAPI(store)
+			api := NewAPI(store, log.NewNopLogger())
 			server := httptest.NewServer(api)
 			defer server.Close()
 
@@ -56,7 +57,7 @@ func TestAPISelect(t *testing.T) {
 
 			store := mocks.NewMockStore(ctrl)
 
-			api := NewAPI(store)
+			api := NewAPI(store, log.NewNopLogger())
 			server := httptest.NewServer(api)
 			defer server.Close()
 
@@ -93,7 +94,7 @@ func TestAPIInsert(t *testing.T) {
 
 			store := mocks.NewMockStore(ctrl)
 
-			api := NewAPI(store)
+			api := NewAPI(store, log.NewNopLogger())
 			server := httptest.NewServer(api)
 			defer server.Close()
 
@@ -123,7 +124,7 @@ func TestAPIInsert(t *testing.T) {
 
 			store := mocks.NewMockStore(ctrl)
 
-			api := NewAPI(store)
+			api := NewAPI(store, log.NewNopLogger())
 			server := httptest.NewServer(api)
 			defer server.Close()
 
@@ -157,7 +158,7 @@ func TestAPIDelete(t *testing.T) {
 
 			store := mocks.NewMockStore(ctrl)
 
-			api := NewAPI(store)
+			api := NewAPI(store, log.NewNopLogger())
 			server := httptest.NewServer(api)
 			defer server.Close()
 
@@ -187,7 +188,7 @@ func TestAPIDelete(t *testing.T) {
 
 			store := mocks.NewMockStore(ctrl)
 
-			api := NewAPI(store)
+			api := NewAPI(store, log.NewNopLogger())
 			server := httptest.NewServer(api)
 			defer server.Close()
 

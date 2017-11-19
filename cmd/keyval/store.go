@@ -81,7 +81,7 @@ func runStore(args []string) error {
 		return err
 	}
 
-	level.Debug(logger).Log("TCP_API", fmt.Sprintf("%s://%s", apiUDPNetwork, apiUDPAddress))
+	level.Debug(logger).Log("UDP_API", fmt.Sprintf("%s://%s", apiUDPNetwork, apiUDPAddress))
 
 	// Setup store api
 	keyval := store.New()
@@ -121,6 +121,8 @@ func runStore(args []string) error {
 				keyval,
 				log.With(logger, "component", "store_udp_api"),
 			)
+			defer server.Stop()
+
 			return server.Serve(apiUDPListener)
 		}, func(error) {
 			apiTCPListener.Close()

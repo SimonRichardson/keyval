@@ -6,24 +6,9 @@ import (
 	"net"
 	"time"
 
+	keyvalNet "github.com/SimonRichardson/keyval/pkg/net"
 	"github.com/SimonRichardson/keyval/pkg/store"
 	"github.com/go-kit/kit/log"
-)
-
-// Status represents the different codes that can return from the handlers
-type Status int
-
-const (
-	// OK code
-	OK Status = iota
-	// Created code
-	Created
-	// BadRequest err code
-	BadRequest
-	// NotFound err code
-	NotFound
-	// ServerError code
-	ServerError
 )
 
 // Server represents a way to interact with the underlying key/val store over tcp
@@ -56,40 +41,40 @@ func (s *Server) handleConn(conn net.Conn) {
 
 	dec := gob.NewDecoder(conn)
 
-	var query Query
+	var query keyvalNet.Query
 	if err := dec.Decode(&query); err != nil {
 		// send error
-		write(conn, ServerError)
+		write(conn, keyvalNet.ServerError)
 		return
 	}
 
 	switch query.Method {
-	case "SELECT":
+	case keyvalNet.Select:
 		s.handleSelect(conn, query)
-	case "INSERT":
+	case keyvalNet.Insert:
 		s.handleInsert(conn, query)
-	case "DELETE":
+	case keyvalNet.Delete:
 		s.handleDelete(conn, query)
 	default:
 		// send error
-		write(conn, NotFound)
+		write(conn, keyvalNet.NotFound)
 	}
 }
 
-func (s *Server) handleSelect(w io.Writer, q Query) {
+func (s *Server) handleSelect(w io.Writer, q keyvalNet.Query) {
 	// useful metrics
 	begin := time.Now()
 
 	// Validate user input.
 	var qp QueryParams
 	if err := qp.DecodeFrom(q, queryRequired); err != nil {
-		write(w, BadRequest)
+		write(w, keyvalNet.BadRequest)
 		return
 	}
 
 	value, ok := s.store.Get(qp.Key)
 	if !ok {
-		write(w, NotFound)
+		write(w, keyvalNet.NotFound)
 		return
 	}
 
@@ -101,14 +86,14 @@ func (s *Server) handleSelect(w io.Writer, q Query) {
 	qr.EncodeTo(w)
 }
 
-func (s *Server) handleInsert(w io.Writer, q Query) {
+func (s *Server) handleInsert(w io.Writer, q keyvalNet.Query) {
 	// useful metrics
 	begin := time.Now()
 
 	// Validate user input.
 	var qp QueryParams
 	if err := qp.DecodeFrom(q, queryRequired); err != nil {
-		write(w, BadRequest)
+		write(w, keyvalNet.BadRequest)
 		return
 	}
 
@@ -120,20 +105,20 @@ func (s *Server) handleInsert(w io.Writer, q Query) {
 	qr.EncodeTo(w)
 }
 
-func (s *Server) handleDelete(w io.Writer, q Query) {
+func (s *Server) handleDelete(w io.Writer, q keyvalNet.Query) {
 	// useful metrics
 	begin := time.Now()
 
 	// Validate user input.
 	var qp QueryParams
 	if err := qp.DecodeFrom(q, queryRequired); err != nil {
-		write(w, BadRequest)
+		write(w, keyvalNet.BadRequest)
 		return
 	}
 
 	ok := s.store.Delete(qp.Key)
 	if !ok {
-		write(w, NotFound)
+		write(w, keyvalNet.NotFound)
 		return
 	}
 
@@ -144,9 +129,9 @@ func (s *Server) handleDelete(w io.Writer, q Query) {
 	qr.EncodeTo(w)
 }
 
-func write(w io.Writer, status Status) {
+func write(w io.Writer, status keyvalNet.Status) {
 	enc := gob.NewEncoder(w)
-	if err := enc.Encode(Result{
+	if err := enc.Encode(keyvalNet.Result{
 		Status: status,
 		Value:  []byte{},
 	}); err != nil {

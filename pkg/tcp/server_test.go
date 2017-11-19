@@ -9,6 +9,7 @@ import (
 	"testing"
 	"testing/quick"
 
+	keyvalNet "github.com/SimonRichardson/keyval/pkg/net"
 	"github.com/SimonRichardson/keyval/pkg/store/mocks"
 	"github.com/go-kit/kit/log"
 	"github.com/golang/mock/gomock"
@@ -34,12 +35,12 @@ func TestAPISelect(t *testing.T) {
 
 			store.EXPECT().Get(key).Return(nil, false)
 
-			resp := Request(port, Query{
-				Method: "SELECT",
+			resp := Request(port, keyvalNet.Query{
+				Method: keyvalNet.Select,
 				Key:    key,
 			})
 
-			return resp.Status == NotFound
+			return resp.Status == keyvalNet.NotFound
 		}
 		if err := quick.Check(fn, nil); err != nil {
 			t.Error(err)
@@ -63,12 +64,12 @@ func TestAPISelect(t *testing.T) {
 
 			store.EXPECT().Get(key).Return(b, true)
 
-			resp := Request(port, Query{
-				Method: "SELECT",
+			resp := Request(port, keyvalNet.Query{
+				Method: keyvalNet.Select,
 				Key:    key,
 			})
 
-			if resp.Status != OK {
+			if resp.Status != keyvalNet.OK {
 				return false
 			}
 
@@ -109,13 +110,13 @@ func TestAPIInsert(t *testing.T) {
 
 			store.EXPECT().Set(key, b).Return(false)
 
-			resp := Request(port, Query{
-				Method: "INSERT",
+			resp := Request(port, keyvalNet.Query{
+				Method: keyvalNet.Insert,
 				Key:    key,
 				Value:  b,
 			})
 
-			return resp.Status == OK
+			return resp.Status == keyvalNet.OK
 		}
 		if err := quick.Check(fn, nil); err != nil {
 			t.Error(err)
@@ -143,13 +144,13 @@ func TestAPIInsert(t *testing.T) {
 
 			store.EXPECT().Set(key, b).Return(true)
 
-			resp := Request(port, Query{
-				Method: "INSERT",
+			resp := Request(port, keyvalNet.Query{
+				Method: keyvalNet.Insert,
 				Key:    key,
 				Value:  b,
 			})
 
-			return resp.Status == Created
+			return resp.Status == keyvalNet.Created
 		}
 		if err := quick.Check(fn, nil); err != nil {
 			t.Error(err)
@@ -177,12 +178,12 @@ func TestAPIDelete(t *testing.T) {
 
 			store.EXPECT().Delete(key).Return(false)
 
-			resp := Request(port, Query{
-				Method: "DELETE",
+			resp := Request(port, keyvalNet.Query{
+				Method: keyvalNet.Delete,
 				Key:    key,
 			})
 
-			return resp.Status == NotFound
+			return resp.Status == keyvalNet.NotFound
 		}
 		if err := quick.Check(fn, nil); err != nil {
 			t.Error(err)
@@ -195,7 +196,7 @@ func TestAPIDelete(t *testing.T) {
 
 		store := mocks.NewMockStore(ctrl)
 
-		port := 9004
+		port := 9005
 
 		server := NewServer(store, log.NewNopLogger())
 		listener := setupServer(server, port)
@@ -206,12 +207,12 @@ func TestAPIDelete(t *testing.T) {
 
 			store.EXPECT().Delete(key).Return(true)
 
-			resp := Request(port, Query{
-				Method: "DELETE",
+			resp := Request(port, keyvalNet.Query{
+				Method: keyvalNet.Delete,
 				Key:    key,
 			})
 
-			return resp.Status == OK
+			return resp.Status == keyvalNet.OK
 		}
 		if err := quick.Check(fn, nil); err != nil {
 			t.Error(err)
@@ -236,7 +237,7 @@ func buildKey(a []byte) string {
 	return v
 }
 
-func Request(port int, q Query) Result {
+func Request(port int, q keyvalNet.Query) keyvalNet.Result {
 	conn, err := net.Dial("tcp", fmt.Sprintf("0.0.0.0:%d", port))
 	if err != nil {
 		panic(err)
@@ -248,7 +249,7 @@ func Request(port int, q Query) Result {
 		panic(err)
 	}
 
-	var res Result
+	var res keyvalNet.Result
 	dec := gob.NewDecoder(conn)
 	if err := dec.Decode(&res); err != nil {
 		panic(err)

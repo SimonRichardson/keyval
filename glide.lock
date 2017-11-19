@@ -1,12 +1,25 @@
-hash: c03d8d4d8d2f9d26a72515effd3fc29cef90564dcd5735747c12b30f3cabf5d7
-updated: 2017-11-19T18:01:34.899876378Z
+hash: 9c9bff82ed4b007500ddcfab9419e049c8661209605195649ac7dad9bf4bcec8
+updated: 2017-11-19T18:12:21.270958069Z
 imports:
+- name: github.com/go-kit/kit
+  version: d67bb4c202e3b91377d1079b110a6c9ce23ab2f8
+  subpackages:
+  - log
+  - log/level
+- name: github.com/go-logfmt/logfmt
+  version: 390ab7935ee28ec6b286364bba9b4dd6410cb3d5
+- name: github.com/go-stack/stack
+  version: 7a2f19628aabfe68f0766b59e74d6315f8347d22
 - name: github.com/golang/mock
   version: 13f360950a79f5864a972c786a10a50e44b69541
   subpackages:
   - gomock
+- name: github.com/kr/logfmt
+  version: b84e30acd515aadc4b783ad4ff83aff3299bdfe0
 - name: github.com/pkg/errors
   version: c605e284fe17294bda444b34710735b29d1a9d90
+- name: github.com/SimonRichardson/gexec
+  version: c3f2b6a0a84bbf048eafea7f53c393899492806b
 - name: github.com/spaolacci/murmur3
   version: 9f5d223c60793748f04a9d5b4b4eacddfc1f755d
 testImports: []

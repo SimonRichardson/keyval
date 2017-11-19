@@ -3,3 +3,5 @@ import:
   - package: github.com/pkg/errors
   - package: github.com/spaolacci/murmur3
   - package: github.com/golang/mock/gomock
+  - package: github.com/go-kit/kit/log
+  - package: github.com/SimonRichardson/gexec

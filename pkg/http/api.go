@@ -6,6 +6,8 @@ import (
 	"time"
 
 	"github.com/SimonRichardson/keyval/pkg/store"
+	"github.com/go-kit/kit/log"
+	"github.com/go-kit/kit/log/level"
 )
 
 // These are the paths we're interested for the queries
@@ -17,17 +19,21 @@ const (
 
 // API serves the api for the underlying key/value store
 type API struct {
-	store store.Store
+	store  store.Store
+	logger log.Logger
 }
 
 // NewAPI creates a API with the correct dependencies
-func NewAPI(store store.Store) *API {
+func NewAPI(store store.Store, logger log.Logger) *API {
 	return &API{
-		store: store,
+		store:  store,
+		logger: logger,
 	}
 }
 
 func (a *API) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	level.Info(a.logger).Log("url", r.URL.String())
+
 	iw := &interceptingWriter{http.StatusOK, w}
 	w = iw
 

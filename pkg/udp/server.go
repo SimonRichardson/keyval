@@ -13,17 +13,6 @@ import (
 	"github.com/go-kit/kit/log/level"
 )
 
-type ConnectionStatus int
-
-const (
-	Joining ConnectionStatus = iota
-	Leaving
-)
-
-type Client struct {
-	clientAddr *net.UDPAddr
-}
-
 type Server struct {
 	store  store.Store
 	logger log.Logger

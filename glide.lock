@@ -1,6 +1,10 @@
-hash: 816893287f9853c5b50b53ebbb5d0c9fbc8dc3bd1b9b941f716b04c494936ffa
-updated: 2017-11-15T10:22:29.076536847Z
+hash: c03d8d4d8d2f9d26a72515effd3fc29cef90564dcd5735747c12b30f3cabf5d7
+updated: 2017-11-19T18:01:34.899876378Z
 imports:
+- name: github.com/golang/mock
+  version: 13f360950a79f5864a972c786a10a50e44b69541
+  subpackages:
+  - gomock
 - name: github.com/pkg/errors
   version: c605e284fe17294bda444b34710735b29d1a9d90
 - name: github.com/spaolacci/murmur3

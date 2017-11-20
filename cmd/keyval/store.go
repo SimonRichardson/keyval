@@ -116,15 +116,17 @@ func runStore(args []string) error {
 		})
 	}
 	{
+		var server *udpStore.Server
 		g.Add(func() error {
-			server := udpStore.NewServer(
+			server = udpStore.NewServer(
 				keyval,
 				log.With(logger, "component", "store_udp_api"),
 			)
-			defer server.Stop()
 
 			return server.Serve(apiUDPListener)
 		}, func(error) {
+			fmt.Println("STOP")
+			server.Stop()
 			apiTCPListener.Close()
 		})
 	}

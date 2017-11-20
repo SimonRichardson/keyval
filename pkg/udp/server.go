@@ -37,39 +37,11 @@ func NewServer(store store.Store, logger log.Logger) *Server {
 
 // Serve the listener for the server
 func (s *Server) Serve(conn *net.UDPConn) error {
-	step := time.NewTicker(time.Millisecond)
-	defer step.Stop()
-
 	go s.handleClients(conn)
+	go s.handleRequests(conn)
 
 	for {
 		select {
-		case <-step.C:
-			var buf [1024]byte
-
-			n, addr, err := conn.ReadFromUDP(buf[0:])
-			if err != nil {
-				continue
-			}
-
-			dec := gob.NewDecoder(bytes.NewBuffer(buf[0:n]))
-			var query keyvalNet.Query
-			if err := dec.Decode(&query); err != nil {
-				var res bytes.Buffer
-				write(&res, keyvalNet.ServerError)
-				if _, err := conn.WriteToUDP(res.Bytes(), addr); err != nil {
-					level.Warn(s.logger).Log("err", err)
-					continue
-				}
-			}
-
-			go func() {
-				s.clients <- client{
-					Addr:  addr,
-					Query: query,
-				}
-			}()
-
 		case q := <-s.stop:
 			close(q)
 			return nil
@@ -77,6 +49,7 @@ func (s *Server) Serve(conn *net.UDPConn) error {
 	}
 }
 
+// Stop the server
 func (s *Server) Stop() {
 	q := make(chan struct{})
 	s.stop <- q
@@ -108,6 +81,35 @@ func (s *Server) handleClients(conn *net.UDPConn) {
 				return
 			}
 		}
+	}
+}
+
+func (s *Server) handleRequests(conn *net.UDPConn) {
+	for {
+		var buf [1024]byte
+
+		n, addr, err := conn.ReadFromUDP(buf[0:])
+		if err != nil {
+			continue
+		}
+
+		dec := gob.NewDecoder(bytes.NewBuffer(buf[0:n]))
+		var query keyvalNet.Query
+		if err := dec.Decode(&query); err != nil {
+			var res bytes.Buffer
+			write(&res, keyvalNet.ServerError)
+			if _, err := conn.WriteToUDP(res.Bytes(), addr); err != nil {
+				level.Warn(s.logger).Log("err", err)
+				continue
+			}
+		}
+
+		go func() {
+			s.clients <- client{
+				Addr:  addr,
+				Query: query,
+			}
+		}()
 	}
 }
 
